@@ -98,14 +98,27 @@ Lower-indexed inputs always have priority:
 ## File Structure
 
 ```
-├── very_simple_switch.sv    # Main switch fabric module + FIFO
-├── tb_very_simple_switch.sv # Comprehensive testbench
-└── README.md               # This file
+├── very_simple_switch.sv           # Main switch fabric module + FIFO
+├── tb_very_simple_switch.sv        # Comprehensive testbench (Icarus Verilog)
+├── tb_very_simple_switch_verilator.sv # Verilator-compatible testbench
+└── README.md                       # This file
 ```
 
 ## Testing
 
-The included testbench (`tb_very_simple_switch.sv`) provides comprehensive verification:
+Two testbenches are provided for different simulation tools:
+
+### Icarus Verilog Testbench
+The full-featured testbench (`tb_very_simple_switch.sv`) uses advanced SystemVerilog constructs:
+- Fork/join for parallel operations
+- Timing control with delays
+- Advanced task scheduling
+
+### Verilator Testbench
+The Verilator-compatible version (`tb_very_simple_switch_verilator.sv`) removes timing constructs:
+- Uses `wait()` statements instead of `@(posedge clk)`
+- Replaces `fork/join` with sequential operations
+- Compatible with `--timing` and `--no-timing` flags
 
 ### Test Cases
 1. **Reset Test**: Verify clean reset behavior
@@ -119,13 +132,20 @@ The included testbench (`tb_very_simple_switch.sv`) provides comprehensive verif
 
 ### Running Tests
 
-Using Icarus Verilog:
+**Using Icarus Verilog:**
 ```bash
 iverilog -g2012 -o switch_test very_simple_switch.sv tb_very_simple_switch.sv
 vvp switch_test
 ```
 
-With waveform viewing:
+**Using Verilator:**
+```bash
+verilator --timing -cc very_simple_switch.sv tb_very_simple_switch_verilator.sv --exe
+# Or without timing:
+verilator --no-timing -cc very_simple_switch.sv tb_very_simple_switch_verilator.sv --exe
+```
+
+**With waveform viewing:**
 ```bash
 gtkwave switch_fabric.vcd
 ```

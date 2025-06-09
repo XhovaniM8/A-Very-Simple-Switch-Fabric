@@ -115,7 +115,7 @@ module very_simple_switch #(
     always_comb begin
         output_requests = '0;
         for (int i = 0; i < INPUT_QTY; i++) begin
-            if (!fifo_empty[i] && fifo_dest[i] < OUTPUT_QTY) begin
+            if (!fifo_empty[i] && fifo_dest[i] < DEST_WIDTH'(OUTPUT_QTY)) begin
                 output_requests[fifo_dest[i]][i] = 1'b1;
             end
         end
@@ -125,13 +125,13 @@ module very_simple_switch #(
     generate
         for (genvar out = 0; out < OUTPUT_QTY; out++) begin : gen_arbiters
             always_comb begin
-                selected_input[out] = 0;
+                selected_input[out] = $clog2(INPUT_QTY)'(0);
                 output_has_data[out] = 1'b0;
                 
                 // Find lowest index input requesting this output
                 for (int i = 0; i < INPUT_QTY; i++) begin
                     if (output_requests[out][i]) begin
-                        selected_input[out] = i;
+                        selected_input[out] = $clog2(INPUT_QTY)'(i);
                         output_has_data[out] = 1'b1;
                         break;
                     end
